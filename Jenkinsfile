@@ -1,3 +1,4 @@
+
 pipeline {
   agent any
 
@@ -6,80 +7,81 @@ pipeline {
     AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
   }
 
+  parameters {
+    choice(name: 'ACTION', choices: ['init', 'validate', 'plan', 'apply', 'destroy'], description: 'Terraform action to perform')
+  }
+
   stages {
     stage('Initialize') {
+      when {
+        expression { params.ACTION == 'init' }
+      }
       steps {
-        script {
-          sh 'terraform init'
-        }
+        sh 'terraform init'
       }
     }
 
     stage('Validate') {
+      when {
+        expression { params.ACTION == 'validate' }
+      }
       steps {
-         script {
-      sh 'terraform validate'
+        sh 'terraform validate'
+      }
     }
-  }
-}
- when {
-  expression { env.ACTION == 'apply' }
-}
-steps {
-  script {
-    sh 'terraform plan'
-  }
-}
 
-stage('Approval for Apply') {
-    when {
-        expression { env.ACTION == 'apply' }
+    stage('Plan') {
+      when {
+        expression { params.ACTION == 'plan' }
+      }
+      steps {
+        sh 'terraform plan'
+      }
     }
-    steps {
+
+    stage('Approval for Apply') {
+      when {
+        expression { params.ACTION == 'apply' }
+      }
+      steps {
         input(message: "Approve Deployment?", ok: "Yes, deploy")
+      }
     }
-}
 
-stage('Apply') {
-    when {
-        expression { env.ACTION == 'apply' }
+    stage('Apply') {
+      when {
+        expression { params.ACTION == 'apply' }
+      }
+      steps {
+        sh 'terraform apply -auto-approve'
+      }
     }
-    steps {
-        script {
-            sh 'terraform apply -auto-approve'
-        }
-    }
-}
 
-stage('Plan for Destroy') {
-    when {
-        expression { env.ACTION == 'destroy' }
+    stage('Plan for Destroy') {
+      when {
+        expression { params.ACTION == 'destroy' }
+      }
+      steps {
+        sh 'terraform plan -destroy'
+      }
     }
-    steps {
-        script {
-            sh 'terraform plan -destroy'
-        }
-    }
-}
 
-stage('Approval for Destroy') {
-    when {
-        expression { env.ACTION == 'destroy' }
-    }
-    steps {
+    stage('Approval for Destroy') {
+      when {
+        expression { params.ACTION == 'destroy' }
+      }
+      steps {
         input(message: "Are you sure you want to destroy? Review the plan above.", ok: "Yes, destroy")
+      }
     }
-}
 
-stage('Destroy') {
-    when {
-        expression { env.ACTION == 'destroy' }
+    stage('Destroy') {
+      when {
+        expression { params.ACTION == 'destroy' }
+      }
+      steps {
+        sh 'terraform destroy -auto-approve'
+      }
     }
-    steps {
-        script {
-            sh 'terraform destroy -auto-approve'
-        }
-     }
-   }
   }
 }
