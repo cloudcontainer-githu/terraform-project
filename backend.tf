@@ -5,6 +5,7 @@ terraform {
     region         = "ap-south-1"
     encrypt        = true
     dynamodb_table = "terraform-lock-table"
-    profile        = "my-aws-profile"
+    # Remove this line if you don't have a named profile
+    # profile        = "my-aws-profile"
   }
 }
