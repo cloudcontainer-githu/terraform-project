@@ -1,3 +1,4 @@
+
 variable "db_instance_identifier" {
   description = "The name of the RDS instance"
   type        = string
@@ -29,7 +30,7 @@ variable "password" {
 }
 
 variable "rds_sg_id" {
-  description = "The security group ID for the RDS cluster."
+  description = "The security group IDs for the RDS cluster."
   type        = list(string)
 }
 
@@ -44,11 +45,11 @@ variable "parameter_group_name" {
 }
 
 variable "private_subnet_ids" {
-  type = list(string)
+  description = "List of private subnet IDs for the RDS instance"
+  type        = list(string)
 }
 
 variable "db_name" {
   description = "The name of the database to create when the RDS instance is created"
   type        = string
 }
-
