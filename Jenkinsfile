@@ -15,11 +15,7 @@ pipeline {
     stage('Initialize') {
       when {
         anyOf {
-          expression { params.ACTION == 'init' }
-          expression { params.ACTION == 'validate' }
-          expression { params.ACTION == 'plan' }
-          expression { params.ACTION == 'apply' }
-          expression { params.ACTION == 'destroy' }
+          expression { params.ACTION in ['init', 'validate', 'plan', 'apply', 'destroy'] }
         }
       }
       steps {
@@ -69,12 +65,23 @@ pipeline {
       }
     }
 
-    stage('Approval for Apply') {
+    stage('Plan & Approval for Apply') {
       when {
         expression { params.ACTION == 'apply' }
       }
       steps {
-        input message: "Approve Apply?", ok: "Yes, apply"
+        script {
+          try {
+            // Always create tfplan before apply
+            sh 'terraform plan -out=tfplan'
+          } catch (err) {
+            echo "Terraform plan failed: ${err}"
+            currentBuild.result = 'FAILURE'
+            error("Stopping pipeline due to plan failure")
+          }
+
+          input message: "Approve Apply?", ok: "Yes, apply"
+        }
       }
     }
 
