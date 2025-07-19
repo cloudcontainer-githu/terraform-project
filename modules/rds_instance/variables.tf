@@ -1,4 +1,3 @@
-
 variable "db_instance_identifier" {
   description = "The name of the RDS instance"
   type        = string
@@ -27,11 +26,17 @@ variable "username" {
 variable "password" {
   description = "Password for the RDS instance."
   type        = string
+  sensitive   = true
 }
 
 variable "rds_sg_id" {
-  description = "The security group IDs for the RDS cluster."
+  description = "The security group IDs for the RDS instance."
   type        = list(string)
+}
+
+variable "engine" {
+  description = "The database engine to use (e.g. mysql, postgres)"
+  type        = string
 }
 
 variable "engine_version" {
@@ -53,3 +58,6 @@ variable "db_name" {
   description = "The name of the database to create when the RDS instance is created"
   type        = string
 }
+
+
+ 
