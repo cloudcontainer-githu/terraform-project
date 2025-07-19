@@ -11,14 +11,21 @@ pipeline {
   }
 
   stages {
+
     stage('Initialize') {
       when {
-        expression { params.ACTION == 'init' }
+        anyOf {
+          expression { params.ACTION == 'init' }
+          expression { params.ACTION == 'validate' }
+          expression { params.ACTION == 'plan' }
+          expression { params.ACTION == 'apply' }
+          expression { params.ACTION == 'destroy' }
+        }
       }
       steps {
         script {
           try {
-            sh 'terraform init'
+            sh 'terraform init -reconfigure'
           } catch (err) {
             echo "Terraform init failed: ${err}"
             currentBuild.result = 'FAILURE'
@@ -52,7 +59,7 @@ pipeline {
       steps {
         script {
           try {
-            sh 'terraform plan'
+            sh 'terraform plan -out=tfplan'
           } catch (err) {
             echo "Terraform plan failed: ${err}"
             currentBuild.result = 'FAILURE'
@@ -78,7 +85,7 @@ pipeline {
       steps {
         script {
           try {
-            sh 'terraform apply -auto-approve'
+            sh 'terraform apply -auto-approve tfplan'
           } catch (err) {
             echo "Terraform apply failed: ${err}"
             currentBuild.result = 'FAILURE'
@@ -95,7 +102,7 @@ pipeline {
       steps {
         script {
           try {
-            sh 'terraform plan -destroy'
+            sh 'terraform plan -destroy -out=tfdestroy'
           } catch (err) {
             echo "Terraform destroy plan failed: ${err}"
             currentBuild.result = 'FAILURE'
@@ -140,6 +147,7 @@ pipeline {
         }
       }
     }
+
   }
 
   post {
@@ -154,4 +162,3 @@ pipeline {
     }
   }
 }
-
