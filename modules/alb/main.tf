@@ -17,33 +17,40 @@ resource "aws_lb_target_group" "frontend_target_group" {
   port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
-}
 
-health_check {
-  healthy_threshold   = 2
-  unhealthy_threshold = 2
-  timeout             = 3
-  interval            = 30
-  path                = "/"
-  protocol            = "HTTP"
-  matcher             = "200"
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    interval            = 30
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200"
+  }
+
+  tags = {
+    Name = var.frontend_target_group_name
+  }
 }
 
 resource "aws_lb_listener" "frontend_http_listener" {
-  load_balancer_arn = aws_lb.alb.arn
+  load_balancer_arn = aws_lb.application_load_balancer.arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.frontend_tg.arn
+    target_group_arn = aws_lb_target_group.frontend_target_group.arn
   }
 }
 
 resource "aws_lb_target_group_attachment" "frontend_instances_attachment" {
   count = length(var.frontend_instances_ids)
 
-  target_group_arn = aws_lb_target_group.frontend_tg.arn
+  target_group_arn = aws_lb_target_group.frontend_target_group.arn
   target_id        = var.frontend_instances_ids[count.index]
   port             = 80
 }
+
+
+
