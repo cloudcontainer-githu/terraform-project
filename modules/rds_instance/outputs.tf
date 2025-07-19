@@ -7,3 +7,4 @@ output "db_instance_id" {
   value       = aws_db_instance.default.id
   description = "The ID of the RDS instance"
 }
+

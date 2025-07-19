@@ -52,5 +52,3 @@ resource "aws_lb_target_group_attachment" "frontend_instances_attachment" {
   port             = 80
 }
 
-
-

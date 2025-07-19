@@ -27,3 +27,4 @@ resource "aws_db_instance" "default" {
     Name = var.db_instance_identifier
   }
 }
+

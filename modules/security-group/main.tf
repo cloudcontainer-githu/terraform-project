@@ -103,6 +103,7 @@ resource "aws_security_group" "rds_sg" {
     protocol        = "tcp"
     security_groups = [aws_security_group.backend_sg.id]
   }
+<<<<<<< HEAD
 
   egress {
     from_port   = 0
@@ -111,3 +112,15 @@ resource "aws_security_group" "rds_sg" {
     cidr_blocks = var.anywhere
   }
 }
+=======
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = var.anywhere
+  }
+}
+
+
+
